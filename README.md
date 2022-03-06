@@ -1,24 +1,52 @@
 # daily-git-commits
 
-A script for listing commits from local machine for given date range.
+Shell script for listing git commits for current date or given
+date range.
 
 ## Usage
 
-1. Modify `author` and `local_projects_directory_root` variables to match your needs.
-
-2. Run the script from command line with start/end date parameters (in format YYYY-MM-DD)
-
-```shell
-./daily-git-commits.sh 2022-03-02 2022-03-04
-```
-
-## Requirements
+### Requirements
 
 A git alias `short`, add to local `~/.gitconfig`
 ```txt
 [alias]
   short  = log --decorate --pretty=format:\"%ai | %s%d [%an]\" --abbrev-commit --all
 ```
+
+### Edit variables
+
+Edit the `author` and `local_projects_directory_root` variables in the beginning of script to match your directory structure
+
+
+### Running the script
+
+#### Without parameters
+
+List all commits for current day:
+
+```shell
+./daily-git-commits.sh
+```
+
+#### With parameters 
+
+List all commits for specific date range with date parameter(s) in format `YYYY-MM-DD`
+
+##### One parameter 
+
+Fom given date to current day
+```shell
+./daily-git-commits.sh 2022-03-01
+```
+
+##### Two parameters
+
+Range between the given dates
+
+```shell
+./daily-git-commits.sh 2022-03-01 2022-03-06
+```
+
 
 # TODO
 
