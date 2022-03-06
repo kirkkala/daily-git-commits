@@ -50,9 +50,9 @@ Range between the given dates
 
 # TODO
 
+- [ ] Add input parameter date validation
 - [ ] Get rid of `short` alias requirement
-- [ ] Run without parameter to return current day's work
-- [ ] Add rainbow colors (for fun)
+- [x] Run without parameter to return current day's work
 
 # Credit
 
