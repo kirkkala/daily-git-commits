@@ -28,11 +28,11 @@ List all commits for current day:
 ./daily-git-commits.sh
 ```
 
-#### With parameters 
+#### With parameters
 
 List all commits for specific date range with date parameter(s) in format `YYYY-MM-DD`
 
-##### One parameter 
+##### One parameter
 
 Fom given date to current day
 ```shell
@@ -50,10 +50,11 @@ Range between the given dates
 
 # TODO
 
+- [ ] Make settings configurable (`author` and `local_projects_directory_root`)
 - [ ] Add input parameter date validation
 - [ ] Get rid of `short` alias requirement
 - [x] Run without parameter to return current day's work
 
 # Credit
 
-🙌 High five @tomimikola for the original idea/script. 
+🙌 High five @tomimikola for the original idea/script.
