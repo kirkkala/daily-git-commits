@@ -2,8 +2,22 @@
 
 # Modify only these ########
 author="Timo Kirkkala"
-local_projects_directory_root="/Users/kirkkala/Sites"
+local_projects_directory_root="/Users/timo.kirkkala/code"
 ############################
+
+COLOR_RED=$(tput setaf 1)
+COLOR_GREEN=$(tput setaf 2)
+#COLOR_YELLOW=$(tput setaf 3)
+#COLOR_BLUE=$(tput setaf 4)
+COLOR_MAGENTA=$(tput setaf 5)
+COLOR_RESET=$(tput sgr0)
+
+if [[ ! -d $local_projects_directory_root ]]
+then
+  echo -e "${COLOR_RED}#################\nDIRECTORY DOES NOT EXIST: ${local_projects_directory_root}${COLOR_RESET}\n
+Check the local_projects_directory_root variable\n"
+  exit 0
+fi
 
 from="$1"
 to="$2"
@@ -20,13 +34,6 @@ if [[ -z "$2" ]] ; then
 fi
 
 end=$(date -j -v +1d -f "%Y-%m-%d" "$to" +%Y-%m-%d)
-
-#COLOR_RED=$(tput setaf 1)
-COLOR_GREEN=$(tput setaf 2)
-#COLOR_YELLOW=$(tput setaf 3)
-#COLOR_BLUE=$(tput setaf 4)
-COLOR_MAGENTA=$(tput setaf 5)
-COLOR_RESET=$(tput sgr0)
 
 function getCommitsPerDate() {
   find "$local_projects_directory_root" -name .git -type d -prune -maxdepth 3 -exec dirname {} \; | while read line; do
