@@ -1,60 +1,48 @@
-# daily-git-commits
+# daily-git-commits 📅✨
 
-Shell script for listing git commits for current date or given
-date range.
+🕵️‍♂️ A delightfully fancy shell script that stalks your git commits and presents
+them in a beautiful report. Perfect when you need to remember what you actually
+accomplished on a given day (or pretend you were productive).
 
-## Usage
+## Documentation
 
 ### Requirements
 
-A git alias `short`, add to local `~/.gitconfig`
-```txt
-[alias]
-  short  = log --decorate --pretty=format:\"%ai | %s%d [%an]\" --abbrev-commit --all
+- Git (obviously! 😄)
+- Bash shell
+
+### Setup 
+
+Create `.env` file and edit variables to match your local.
+
+```shell
+cp .env.example .env
 ```
 
-### Edit variables
+### Usage
 
-Edit the `author` and `local_projects_directory_root` variables in the beginning of script to match your directory structure
-
-
-### Running the script
-
-#### Without parameters
-
-List all commits for current day:
+#### Commits of today
 
 ```shell
 ./daily-git-commits.sh
 ```
 
-#### With parameters
+##### Commits from given day till today
 
-List all commits for specific date range with date parameter(s) in format `YYYY-MM-DD`
-
-##### One parameter
-
-Fom given date to current day
-```shell
-./daily-git-commits.sh 2022-03-01
-```
-
-##### Two parameters
-
-Range between the given dates
+Fom given date `YYYY-MM-DD` to current day
 
 ```shell
-./daily-git-commits.sh 2022-03-01 2022-03-06
+./daily-git-commits.sh 2025-09-21
 ```
 
+##### Commits from specific date range
 
-# TODO
+Date range `YYYY-MM-DD YYYY-MM-DD`
 
-- [ ] Make settings configurable (`author` and `local_projects_directory_root`)
-- [ ] Add input parameter date validation
-- [ ] Get rid of `short` alias requirement
-- [x] Run without parameter to return current day's work
+```shell
+./daily-git-commits.sh 2025-08-30 2025-09-06
+```
 
 # Credit
 
-🙌 High five @tomimikola for the original idea/script.
+🙌 High five for [@tomimikola](https://github.com/tomimikola) for the original idea/script.
