@@ -1,9 +1,10 @@
-# daily-git-commits
+# daily-git-commits 📅✨
 
-Shell script for listing git commits for current date or given
-date range.
+🕵️‍♂️ A delightfully fancy shell script that stalks your git commits and presents
+them in a beautiful report. Perfect when you need to remember what you actually
+accomplished on a given day (or pretend you were productive).
 
-## Usage
+## Documentation
 
 ### Requirements
 
@@ -13,22 +14,23 @@ A git alias `short`, add to local `~/.gitconfig`
   short  = log --decorate --pretty=format:\"%ai | %s%d [%an]\" --abbrev-commit --all
 ```
 
-### Edit variables
+### Setup 
 
-Edit the `author` and `local_projects_directory_root` variables in the beginning of script to match your directory structure
+Create `.env` file and edit variables to match your local.
 
+```shell
+cp .env.example .env
+```
 
-### Running the script
+### Usage
 
-#### Without parameters
-
-List all commits for current day:
+#### Commits of today
 
 ```shell
 ./daily-git-commits.sh
 ```
 
-##### One specific day
+##### Commits from given day till today
 
 Fom given date `YYYY-MM-DD` to current day
 
@@ -36,9 +38,9 @@ Fom given date `YYYY-MM-DD` to current day
 ./daily-git-commits.sh 2025-09-21
 ```
 
-##### Specific date range
+##### Commits from specific date range
 
-Range between the given dates
+Date range `YYYY-MM-DD YYYY-MM-DD`
 
 ```shell
 ./daily-git-commits.sh 2025-08-30 2025-09-06
