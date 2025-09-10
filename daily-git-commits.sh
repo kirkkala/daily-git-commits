@@ -1,9 +1,21 @@
 #!/bin/bash
 
-# Modify only these ########
-author="Timo Kirkkala"
-local_projects_directory_root="/Users/timo.kirkkala/code"
-############################
+# Load configuration from .env file
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="${SCRIPT_DIR}/.env"
+
+if [[ -f "$ENV_FILE" ]]; then
+  # Source the .env file
+  source "$ENV_FILE"
+  author="$AUTHOR"
+  local_projects_directory_root="$LOCAL_PROJECTS_DIRECTORY_ROOT"
+else
+  echo "⚠️  .env file not found at: $ENV_FILE"
+  echo "Please create a .env file with the following variables:"
+  echo "AUTHOR=\"Your Name\""
+  echo "LOCAL_PROJECTS_DIRECTORY_ROOT=\"/path/to/your/projects\""
+  exit 1
+fi
 
 COLOR_RED=$(tput setaf 1)
 COLOR_GREEN=$(tput setaf 2)
