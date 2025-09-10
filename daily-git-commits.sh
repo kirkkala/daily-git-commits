@@ -68,7 +68,7 @@ function getCommitsPerDate() {
   local found_commits=false
   
   find "$local_projects_directory_root" -name .git -type d -prune -maxdepth 3 -exec dirname {} \; | while read line; do
-    logs=$(git -C "${line}" short --author="$author" | grep "$from")
+    logs=$(git -C "${line}" short --reverse --author="$author" | grep "$from")
     if [ "$logs" != "" ]; then
       # Extract just the project name from the full path
       project_name=$(basename "${line}")
