@@ -8,11 +8,8 @@ accomplished on a given day (or pretend you were productive).
 
 ### Requirements
 
-A git alias `short`, add to local `~/.gitconfig`
-```txt
-[alias]
-  short  = log --decorate --pretty=format:\"%ai | %s%d [%an]\" --abbrev-commit --all
-```
+- Git (obviously! 😄)
+- Bash shell
 
 ### Setup 
 
