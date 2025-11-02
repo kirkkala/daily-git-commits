@@ -21,7 +21,7 @@ accomplished on a given day (or pretend you were productive).
 Create `.env` file and edit variables to match your local.
 
 ```shell
-cp .env.example .env
+cp env.example .env
 ```
 
 ### Usage
@@ -34,7 +34,7 @@ cp .env.example .env
 
 ##### Commits from given day till today
 
-Fom given date `YYYY-MM-DD` to current day
+From given date `YYYY-MM-DD` to current day
 
 ```shell
 ./daily-git-commits.sh 2025-09-21
