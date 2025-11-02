@@ -8,8 +8,13 @@ accomplished on a given day (or pretend you were productive).
 
 ### Requirements
 
-- Git (obviously! 😄)
 - Bash shell
+- Git (obviously! 😄)
+- Having your name attached to git commits
+  ```shell
+  # Set your git author globally if not already done
+  git config --global user.name "Your Name"
+  ```
 
 ### Setup 
 

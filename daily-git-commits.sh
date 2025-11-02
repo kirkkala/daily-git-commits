@@ -9,11 +9,17 @@ if [[ -f "$ENV_FILE" ]]; then
   source "$ENV_FILE"
   author="$AUTHOR"
   local_projects_directory_root="$LOCAL_PROJECTS_DIRECTORY_ROOT"
+  maxdepth="${MAXDEPTH:-3}"  # Default to 3 if not specified
 else
-  echo "⚠️  .env file not found at: $ENV_FILE"
-  echo "Please create a .env file with the following variables:"
-  echo "AUTHOR=\"Your Name\""
-  echo "LOCAL_PROJECTS_DIRECTORY_ROOT=\"/path/to/your/projects\""
+  echo " "
+  echo "⚠️ No .env file found at: $ENV_FILE"
+  echo " "
+  echo "   To get started, copy the example configuration:"
+  echo "   ------------------------------------------------"
+  echo "   cp env.example .env"
+  echo "   ------------------------------------------------"
+  echo "   ...and modify .env to match your local setup."
+  echo " "
   exit 1
 fi
 
@@ -67,7 +73,7 @@ function getCommitsPerDate() {
   local temp_file=$(mktemp)
   local found_commits=false
   
-  find "$local_projects_directory_root" -name .git -type d -prune -maxdepth 3 -exec dirname {} \; | while read line; do
+  find "$local_projects_directory_root" -name .git -type d -prune -maxdepth "$maxdepth" -exec dirname {} \; | while read line; do
     logs=$(git -C "${line}" log --reverse --decorate --pretty=format:"%ai | %s%d [%an]" --abbrev-commit --all --author="$author" | grep "$from")
     if [ "$logs" != "" ]; then
       # Extract just the project name from the full path
