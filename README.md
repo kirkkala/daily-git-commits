@@ -32,9 +32,9 @@ cp env.example .env
 ./daily-git-commits.sh
 ```
 
-##### Commits from given day till today
+##### Commits from a specific day
 
-From given date `YYYY-MM-DD` to current day
+From a specific date `YYYY-MM-DD`
 
 ```shell
 ./daily-git-commits.sh 2025-09-21

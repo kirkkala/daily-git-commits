@@ -44,11 +44,9 @@ if [[ $# -eq 0 ]] ; then
   # No arguments passed, default from and to date on current day
   from=$(date +'%Y-%m-%d')
   to="$from"
-fi
-
-if [[ -z "$2" ]] ; then
-  # No second argument, default the "to" date on current day
-  to=$(date +'%Y-%m-%d')
+elif [[ $# -eq 1 ]] ; then
+  # Only one argument, use it for both from and to (single day)
+  to="$from"
 fi
 
 end=$(date -j -v +1d -f "%Y-%m-%d" "$to" +%Y-%m-%d)
