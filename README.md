@@ -47,8 +47,12 @@ daily-commits 2025-11-01 2025-11-15
 
 ## 🔧 Advanced
 
-Need to change your config later?
+Need to change your config? Just re-run installer!
+```bash
+./install.sh
+```
 
+Or edit your config manually
 ```bash
 vi ~/.config/daily-git-commits/.env
 ```
