@@ -62,9 +62,15 @@ fi
 
 if [[ -f "${CONFIG_DIR}/.env" ]]; then
   echo -e "${COLOR_YELLOW}⚠️  Configuration already exists at: ${CONFIG_DIR}/.env${COLOR_RESET}"
-  echo -e "   Keeping your existing configuration."
-  SKIP_CONFIG=true
-else
+  read -p "$(echo -e ${COLOR_YELLOW})Do you want to reconfigure? (y/N) $(echo -e ${COLOR_RESET})" -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "   Keeping your existing configuration."
+    SKIP_CONFIG=true
+  fi
+fi
+
+if [[ -z "$SKIP_CONFIG" ]]; then
   echo ""
   echo -e "${COLOR_BLUE}Let's configure daily-commits!${COLOR_RESET}"
   echo ""
