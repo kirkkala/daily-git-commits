@@ -12,7 +12,7 @@ cd daily-git-commits
 ./install.sh
 ```
 
-The installer will ask you a few friendly questions (like where your projects live) and then you're done! No config files to edit, no PhD required. 🎓
+The installer will ask you a few friendly questions (like where your projects live) and you are done! 🚀
 
 ## 🚀 Usage
 
@@ -52,11 +52,6 @@ Need to change your config? Just re-run installer!
 ./install.sh
 ```
 
-Or edit your config manually
-```bash
-vi ~/.config/daily-git-commits/.env
-```
-
 ## 🗑️ Uninstall
 
 ```bash
@@ -84,4 +79,4 @@ See [LICENSE](LICENSE) file for the legal stuff.
 
 Made with ❤️ (and 🤖) for developers who can't remember what they did yesterday
 
-*P.S. - If you try to look up commits from the future, you'll get a Back to the Future reference. You're welcome.* 🚗⚡
+*P.S. - If you try to look up commits from the future, you'll get a Back to the Future reference.  You're welcome.* 🚗⚡
