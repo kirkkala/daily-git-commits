@@ -1,9 +1,19 @@
 #!/bin/bash
 
-# Load configuration from .env file
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="${SCRIPT_DIR}/.env"
+# daily-commits - A beautiful git commit history viewer
+# https://github.com/kirkkala/daily-git-commits
 
+# Configuration paths
+CONFIG_DIR="${HOME}/.config/daily-git-commits"
+ENV_FILE="${CONFIG_DIR}/.env"
+
+# Allow override for testing or custom locations
+if [[ -n "${DAILY_COMMITS_CONFIG_DIR}" ]]; then
+  CONFIG_DIR="${DAILY_COMMITS_CONFIG_DIR}"
+  ENV_FILE="${CONFIG_DIR}/.env"
+fi
+
+# Load configuration
 if [[ -f "$ENV_FILE" ]]; then
   # Source the .env file
   source "$ENV_FILE"
@@ -12,17 +22,27 @@ if [[ -f "$ENV_FILE" ]]; then
   maxdepth="${MAXDEPTH:-3}"  # Default to 3 if not specified
 else
   echo " "
-  echo "⚠️ No .env file found at: $ENV_FILE"
+  echo "⚠️  Configuration file not found at: $ENV_FILE"
   echo " "
-  echo "   To get started, copy the example configuration:"
-  echo "   ------------------------------------------------"
-  echo "   cp env.example .env"
-  echo "   ------------------------------------------------"
-  echo "   ...and modify .env to match your local setup."
+  echo "   It looks like daily-commits isn't configured yet!"
+  echo " "
+  echo "   Quick setup:"
+  echo "   ───────────────────────────────────────────────────────"
+  echo "   1. Create the config directory:"
+  echo "      mkdir -p \"${CONFIG_DIR}\""
+  echo " "
+  echo "   2. Copy the example config:"
+  echo "      cp \"$(dirname "${BASH_SOURCE[0]}")/../env.example\" \"${ENV_FILE}\""
+  echo " "
+  echo "   3. Edit the config with your details:"
+  echo "      nano \"${ENV_FILE}\""
+  echo "      (or use your favorite editor)"
+  echo "   ───────────────────────────────────────────────────────"
   echo " "
   exit 1
 fi
 
+# Color definitions
 COLOR_RED=$(tput setaf 1)
 COLOR_GREEN=$(tput setaf 2)
 COLOR_YELLOW=$(tput setaf 3)
@@ -30,11 +50,11 @@ COLOR_BLUE=$(tput setaf 4)
 COLOR_MAGENTA=$(tput setaf 5)
 COLOR_RESET=$(tput sgr0)
 
-if [[ ! -d $local_projects_directory_root ]]
-then
+# Validate projects directory
+if [[ ! -d $local_projects_directory_root ]]; then
   echo -e "${COLOR_RED}#################\nDIRECTORY DOES NOT EXIST: ${local_projects_directory_root}${COLOR_RESET}\n
-Check the local_projects_directory_root variable\n"
-  exit 0
+Check the LOCAL_PROJECTS_DIRECTORY_ROOT variable in: ${ENV_FILE}\n"
+  exit 1
 fi
 
 from="$1"
@@ -62,7 +82,7 @@ if in_array "$from" "${YESTERDAY_SHORTCUTS[@]}" "${WEEK_SHORTCUTS[@]}" || [[ "$f
   is_shorthand=true
   if [[ -n "$to" ]]; then
     echo -e "\n${COLOR_RED}⚠️  Shorthand parameter '${from}' cannot be combined with a second argument!${COLOR_RESET}"
-    echo -e "   Usage: ${COLOR_GREEN}./daily-git-commits.sh ${from}${COLOR_RESET}\n"
+    echo -e "   Usage: ${COLOR_GREEN}daily-commits ${from}${COLOR_RESET}\n"
     exit 1
   fi
 fi
@@ -91,7 +111,7 @@ case "$from" in
       days_back=$((num_days - 1))
       from=$(date -j -v -${days_back}d +'%Y-%m-%d')
       to=$(date +'%Y-%m-%d')
-    elif [[ $# -eq 1 ]] ; then
+    elif [[ $# -eq 1 ]]; then
       # Regular date parameter - only one date argument, use it for both from and to (single day)
       to="$from"
     fi
@@ -107,7 +127,8 @@ current_timestamp=$(date -j -f "%Y-%m-%d" "$current_date" +%s)
 # Check if date parsing failed
 if [[ -z "$from_timestamp" ]] || [[ -z "$to_timestamp" ]]; then
   echo -e "\n${COLOR_RED}⚠️  Invalid date format!${COLOR_RESET}"
-  echo -e "   Please check the ${COLOR_YELLOW}README.md${COLOR_RESET} for usage examples and available shortcuts.\n"
+  echo -e "   Expected format: ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}"
+  echo -e "   Run ${COLOR_GREEN}daily-commits --help${COLOR_RESET} for usage examples.\n"
   exit 1
 fi
 
@@ -248,3 +269,4 @@ while [ "$from" != "$end" ]; do
   
   from=$next_date
 done
+
