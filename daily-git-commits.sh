@@ -49,6 +49,35 @@ elif [[ $# -eq 1 ]] ; then
   to="$from"
 fi
 
+# Validate that dates are not in the future
+current_date=$(date +'%Y-%m-%d')
+from_timestamp=$(date -j -f "%Y-%m-%d" "$from" +%s 2>/dev/null)
+to_timestamp=$(date -j -f "%Y-%m-%d" "$to" +%s 2>/dev/null)
+current_timestamp=$(date -j -f "%Y-%m-%d" "$current_date" +%s)
+
+# Check if date parsing failed
+if [[ -z "$from_timestamp" ]] || [[ -z "$to_timestamp" ]]; then
+  echo -e "\n${COLOR_RED}⚠️  Invalid date format!${COLOR_RESET}"
+  echo -e "   Please use the format: ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}"
+  echo -e "   Example: ${COLOR_GREEN}./daily-git-commits.sh 2025-11-19${COLOR_RESET}\n"
+  exit 1
+fi
+
+if [[ $from_timestamp -gt $current_timestamp ]] || [[ $to_timestamp -gt $current_timestamp ]]; then
+  future_messages=(
+    "🚗⚡ Great Scott! You're trying to access commits from the future!\n   Even Doc Brown's DeLorean can't help with that one!"
+    "🔮 Nice try, time traveler! We don't have a flux capacitor installed.\n   Try a date that's actually happened... in this timeline at least."
+    "⏰ Whoa, McFly! Those commits haven't been written yet!\n   Roads? Where we're going, we don't need roads... but we DO need past dates!"
+    "🌌 Houston, we have a temporal problem!\n   You're requesting commits from a date that exists only in the space-time continuum of 'Not Yet'."
+    "🎰 Plot twist: The commits you seek are still in the future!\n   Unless you're a Time Lord, please stick to dates from the past."
+    "🦖 Fun fact: Git wasn't designed for time travel!\n   (Though that would make rebasing way cooler)"
+  )
+
+  random_index=$((RANDOM % ${#future_messages[@]}))
+  echo -e "\n${COLOR_YELLOW}${future_messages[$random_index]}${COLOR_RESET}\n"
+  exit 1
+fi
+
 end=$(date -j -v +1d -f "%Y-%m-%d" "$to" +%Y-%m-%d)
 
 # Function to calculate display width of text with emojis
