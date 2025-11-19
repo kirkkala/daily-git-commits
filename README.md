@@ -32,7 +32,16 @@ cp env.example .env
 ./daily-git-commits.sh
 ```
 
-##### Commits from a specific day
+#### Shorthand parameters (for the lazy typist 😎)
+
+```shell
+./daily-git-commits.sh yd     # or "yesterday" - commits from yesterday
+./daily-git-commits.sh 3d     # or "3days" or "3day" - commits from last 3 days
+./daily-git-commits.sh 10d    # any number! - commits from last 10 days
+./daily-git-commits.sh w      # or "week" - commits from past 7 days
+```
+
+#### Commits from a specific day
 
 From a specific date `YYYY-MM-DD`
 
@@ -40,7 +49,7 @@ From a specific date `YYYY-MM-DD`
 ./daily-git-commits.sh 2025-09-21
 ```
 
-##### Commits from specific date range
+#### Commits from specific date range
 
 Date range `YYYY-MM-DD YYYY-MM-DD`
 

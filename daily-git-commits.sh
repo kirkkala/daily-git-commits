@@ -40,14 +40,63 @@ fi
 from="$1"
 to="$2"
 
-if [[ $# -eq 0 ]] ; then
-  # No arguments passed, default from and to date on current day
-  from=$(date +'%Y-%m-%d')
-  to="$from"
-elif [[ $# -eq 1 ]] ; then
-  # Only one argument, use it for both from and to (single day)
-  to="$from"
+# Define shorthand patterns in one place for maintainability
+YESTERDAY_SHORTCUTS=("yd" "yesterday")
+WEEK_SHORTCUTS=("w" "week")
+DAYS_PATTERN='^([0-9]+)(d|day|days)$'
+
+# Function to check if value is in array
+in_array() {
+  local value="$1"
+  shift
+  local item
+  for item in "$@"; do
+    [[ "$item" == "$value" ]] && return 0
+  done
+  return 1
+}
+
+# Check if first parameter is a shorthand and validate no second argument
+is_shorthand=false
+if in_array "$from" "${YESTERDAY_SHORTCUTS[@]}" "${WEEK_SHORTCUTS[@]}" || [[ "$from" =~ $DAYS_PATTERN ]]; then
+  is_shorthand=true
+  if [[ -n "$to" ]]; then
+    echo -e "\n${COLOR_RED}⚠️  Shorthand parameter '${from}' cannot be combined with a second argument!${COLOR_RESET}"
+    echo -e "   Usage: ${COLOR_GREEN}./daily-git-commits.sh ${from}${COLOR_RESET}\n"
+    exit 1
+  fi
 fi
+
+# Handle shorthand date parameters
+case "$from" in
+  yd|yesterday)
+    from=$(date -j -v -1d +'%Y-%m-%d')
+    to="$from"
+    ;;
+  w|week)
+    from=$(date -j -v -6d +'%Y-%m-%d')
+    to=$(date +'%Y-%m-%d')
+    ;;
+  "")
+    # No arguments passed, default from and to date on current day
+    from=$(date +'%Y-%m-%d')
+    to="$from"
+    ;;
+  *)
+    # Check if parameter matches pattern like "3d", "5days", "10day"
+    if [[ "$from" =~ $DAYS_PATTERN ]]; then
+      num_days="${BASH_REMATCH[1]}"
+      # Subtract 1 because the range includes both start and end dates
+      # e.g., "3d" means 3 days total (today + 2 days back)
+      days_back=$((num_days - 1))
+      from=$(date -j -v -${days_back}d +'%Y-%m-%d')
+      to=$(date +'%Y-%m-%d')
+    elif [[ $# -eq 1 ]] ; then
+      # Regular date parameter - only one date argument, use it for both from and to (single day)
+      to="$from"
+    fi
+    ;;
+esac
 
 # Validate that dates are not in the future
 current_date=$(date +'%Y-%m-%d')
@@ -58,8 +107,7 @@ current_timestamp=$(date -j -f "%Y-%m-%d" "$current_date" +%s)
 # Check if date parsing failed
 if [[ -z "$from_timestamp" ]] || [[ -z "$to_timestamp" ]]; then
   echo -e "\n${COLOR_RED}⚠️  Invalid date format!${COLOR_RESET}"
-  echo -e "   Please use the format: ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}"
-  echo -e "   Example: ${COLOR_GREEN}./daily-git-commits.sh 2025-11-19${COLOR_RESET}\n"
+  echo -e "   Please check the ${COLOR_YELLOW}README.md${COLOR_RESET} for usage examples and available shortcuts.\n"
   exit 1
 fi
 
