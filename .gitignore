@@ -1,2 +1,6 @@
-.idea
-.env
+# macOS
+.DS_Store
+
+# Backup files
+*.bak
+*~

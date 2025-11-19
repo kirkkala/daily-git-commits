@@ -1,9 +1,93 @@
 #!/bin/bash
 
-# Load configuration from .env file
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="${SCRIPT_DIR}/.env"
+# daily-commits - A beautiful git commit history viewer
+# https://github.com/kirkkala/daily-git-commits
 
+# Color definitions (needed for help)
+COLOR_RED=$(tput setaf 1)
+COLOR_GREEN=$(tput setaf 2)
+COLOR_YELLOW=$(tput setaf 3)
+COLOR_BLUE=$(tput setaf 4)
+COLOR_MAGENTA=$(tput setaf 5)
+COLOR_RESET=$(tput sgr0)
+
+# Configuration paths
+CONFIG_DIR="${HOME}/.config/daily-git-commits"
+ENV_FILE="${CONFIG_DIR}/.env"
+
+# Allow override for testing or custom locations
+if [[ -n "${DAILY_COMMITS_CONFIG_DIR}" ]]; then
+  CONFIG_DIR="${DAILY_COMMITS_CONFIG_DIR}"
+  ENV_FILE="${CONFIG_DIR}/.env"
+fi
+
+# Help function (defined early so it works without config)
+show_help() {
+  cat << EOF
+
+${COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              📅  daily-commits - Usage Guide  ✨              ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝${COLOR_RESET}
+
+${COLOR_BLUE}DESCRIPTION${COLOR_RESET}
+  A delightfully fancy tool that finds your git commits across all
+  your projects and presents them in a beautiful report.
+
+${COLOR_BLUE}USAGE${COLOR_RESET}
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} [DATE] [END_DATE]
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} [SHORTCUT]
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} --help
+
+${COLOR_BLUE}OPTIONS${COLOR_RESET}
+  ${COLOR_YELLOW}--help, -h, help${COLOR_RESET}     Show this help message
+
+${COLOR_BLUE}SHORTCUTS${COLOR_RESET} (for the lazy typist 😎)
+  ${COLOR_YELLOW}(no args)${COLOR_RESET}            Today's commits
+  ${COLOR_YELLOW}yd, yesterday${COLOR_RESET}        Yesterday's commits
+  ${COLOR_YELLOW}w, week${COLOR_RESET}              Last 7 days
+  ${COLOR_YELLOW}3d, 3day, 3days${COLOR_RESET}      Last 3 days (any number works!)
+  ${COLOR_YELLOW}7d${COLOR_RESET}                   Last 7 days
+  ${COLOR_YELLOW}30d${COLOR_RESET}                  Last 30 days (you overachiever!)
+
+${COLOR_BLUE}DATE FORMATS${COLOR_RESET}
+  ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}           Single date (e.g., 2025-11-19)
+  ${COLOR_YELLOW}YYYY-MM-DD YYYY-MM-DD${COLOR_RESET} Date range
+
+${COLOR_BLUE}EXAMPLES${COLOR_RESET}
+  ${COLOR_GREEN}daily-commits${COLOR_RESET}
+    → Show today's commits
+
+  ${COLOR_GREEN}daily-commits yd${COLOR_RESET}
+    → Show yesterday's commits
+
+  ${COLOR_GREEN}daily-commits 5d${COLOR_RESET}
+    → Show commits from last 5 days
+
+  ${COLOR_GREEN}daily-commits 2025-11-01${COLOR_RESET}
+    → Show commits from November 1st, 2025
+
+  ${COLOR_GREEN}daily-commits 2025-11-01 2025-11-15${COLOR_RESET}
+    → Show commits from November 1-15, 2025
+
+${COLOR_BLUE}CONFIGURATION${COLOR_RESET}
+  Config file: ${COLOR_YELLOW}${CONFIG_DIR}/.env${COLOR_RESET}
+  Edit to change: author name, projects directory, search depth
+
+${COLOR_BLUE}MORE INFO${COLOR_RESET}
+  ${COLOR_MAGENTA}https://github.com/kirkkala/daily-git-commits${COLOR_RESET}
+
+EOF
+  exit 0
+}
+
+# Check for help flag BEFORE loading config
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "help" ]]; then
+  show_help
+fi
+
+# Load configuration
 if [[ -f "$ENV_FILE" ]]; then
   # Source the .env file
   source "$ENV_FILE"
@@ -12,29 +96,31 @@ if [[ -f "$ENV_FILE" ]]; then
   maxdepth="${MAXDEPTH:-3}"  # Default to 3 if not specified
 else
   echo " "
-  echo "⚠️ No .env file found at: $ENV_FILE"
+  echo "⚠️  Configuration file not found at: $ENV_FILE"
   echo " "
-  echo "   To get started, copy the example configuration:"
-  echo "   ------------------------------------------------"
-  echo "   cp env.example .env"
-  echo "   ------------------------------------------------"
-  echo "   ...and modify .env to match your local setup."
+  echo "   It looks like daily-commits isn't configured yet!"
+  echo " "
+  echo "   Quick setup:"
+  echo "   ───────────────────────────────────────────────────────"
+  echo "   1. Create the config directory:"
+  echo "      mkdir -p \"${CONFIG_DIR}\""
+  echo " "
+  echo "   2. Copy the example config:"
+  echo "      cp \"$(dirname "${BASH_SOURCE[0]}")/../env.example\" \"${ENV_FILE}\""
+  echo " "
+  echo "   3. Edit the config with your details:"
+  echo "      vi \"${ENV_FILE}\""
+  echo "      (or use your favorite editor)"
+  echo "   ───────────────────────────────────────────────────────"
   echo " "
   exit 1
 fi
 
-COLOR_RED=$(tput setaf 1)
-COLOR_GREEN=$(tput setaf 2)
-COLOR_YELLOW=$(tput setaf 3)
-COLOR_BLUE=$(tput setaf 4)
-COLOR_MAGENTA=$(tput setaf 5)
-COLOR_RESET=$(tput sgr0)
-
-if [[ ! -d $local_projects_directory_root ]]
-then
+# Validate projects directory
+if [[ ! -d $local_projects_directory_root ]]; then
   echo -e "${COLOR_RED}#################\nDIRECTORY DOES NOT EXIST: ${local_projects_directory_root}${COLOR_RESET}\n
-Check the local_projects_directory_root variable\n"
-  exit 0
+Check the LOCAL_PROJECTS_DIRECTORY_ROOT variable in: ${ENV_FILE}\n"
+  exit 1
 fi
 
 from="$1"
@@ -62,7 +148,7 @@ if in_array "$from" "${YESTERDAY_SHORTCUTS[@]}" "${WEEK_SHORTCUTS[@]}" || [[ "$f
   is_shorthand=true
   if [[ -n "$to" ]]; then
     echo -e "\n${COLOR_RED}⚠️  Shorthand parameter '${from}' cannot be combined with a second argument!${COLOR_RESET}"
-    echo -e "   Usage: ${COLOR_GREEN}./daily-git-commits.sh ${from}${COLOR_RESET}\n"
+    echo -e "   Usage: ${COLOR_GREEN}daily-commits ${from}${COLOR_RESET}\n"
     exit 1
   fi
 fi
@@ -91,7 +177,7 @@ case "$from" in
       days_back=$((num_days - 1))
       from=$(date -j -v -${days_back}d +'%Y-%m-%d')
       to=$(date +'%Y-%m-%d')
-    elif [[ $# -eq 1 ]] ; then
+    elif [[ $# -eq 1 ]]; then
       # Regular date parameter - only one date argument, use it for both from and to (single day)
       to="$from"
     fi
@@ -107,7 +193,8 @@ current_timestamp=$(date -j -f "%Y-%m-%d" "$current_date" +%s)
 # Check if date parsing failed
 if [[ -z "$from_timestamp" ]] || [[ -z "$to_timestamp" ]]; then
   echo -e "\n${COLOR_RED}⚠️  Invalid date format!${COLOR_RESET}"
-  echo -e "   Please check the ${COLOR_YELLOW}README.md${COLOR_RESET} for usage examples and available shortcuts.\n"
+  echo -e "   Expected format: ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}"
+  echo -e "   Run ${COLOR_GREEN}daily-commits --help${COLOR_RESET} for usage examples.\n"
   exit 1
 fi
 
@@ -248,3 +335,4 @@ while [ "$from" != "$end" ]; do
   
   from=$next_date
 done
+
