@@ -35,7 +35,7 @@ else
   echo "      cp \"$(dirname "${BASH_SOURCE[0]}")/../env.example\" \"${ENV_FILE}\""
   echo " "
   echo "   3. Edit the config with your details:"
-  echo "      nano \"${ENV_FILE}\""
+  echo "      vi \"${ENV_FILE}\""
   echo "      (or use your favorite editor)"
   echo "   ───────────────────────────────────────────────────────"
   echo " "

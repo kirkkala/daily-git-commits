@@ -50,7 +50,7 @@ daily-commits 2025-11-01 2025-11-15
 Need to change your config later?
 
 ```bash
-nano ~/.config/daily-git-commits/.env
+vi ~/.config/daily-git-commits/.env
 ```
 
 ## 🗑️ Uninstall
