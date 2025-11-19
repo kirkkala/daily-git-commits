@@ -78,6 +78,6 @@ See [LICENSE](LICENSE) file for the legal stuff.
 
 ---
 
-Made with ❤️ (and ☕) for developers who can't remember what they did yesterday
+Made with ❤️ (and 🤖) for developers who can't remember what they did yesterday
 
 *P.S. - If you try to look up commits from the future, you'll get a Back to the Future reference. You're welcome.* 🚗⚡
