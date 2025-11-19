@@ -89,11 +89,83 @@ fi
 
 # Load configuration
 if [[ -f "$ENV_FILE" ]]; then
-  # Source the .env file
-  source "$ENV_FILE"
-  author="$AUTHOR"
-  local_projects_directory_root="$LOCAL_PROJECTS_DIRECTORY_ROOT"
-  maxdepth="${MAXDEPTH:-3}"  # Default to 3 if not specified
+  # Safely parse the .env file without executing arbitrary code
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Skip comments and empty lines
+    [[ "$line" =~ ^[[:space:]]*# ]] || [[ -z "$line" ]] && continue
+
+    # Extract key=value pairs
+    if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*(.*)$ ]]; then
+      key="${BASH_REMATCH[1]}"
+      value="${BASH_REMATCH[2]}"
+
+      # Remove surrounding quotes if present
+      value="${value%\"}"
+      value="${value#\"}"
+      value="${value%\'}"
+      value="${value#\'}"
+
+      # Only accept known configuration keys
+      case "$key" in
+        AUTHOR)
+          author="$value"
+          ;;
+        LOCAL_PROJECTS_DIRECTORY_ROOT)
+          local_projects_directory_root="$value"
+          ;;
+        MAXDEPTH)
+          maxdepth="$value"
+          ;;
+      esac
+    fi
+  done < "$ENV_FILE"
+
+  # Set defaults if not specified
+  maxdepth="${maxdepth:-3}"
+
+  # Validate required configuration values
+  if [[ -z "$author" ]]; then
+    echo " "
+    echo "${COLOR_RED}⚠️  Error: AUTHOR not set in configuration file${COLOR_RESET}"
+    echo "   Please check: $ENV_FILE"
+    echo " "
+    exit 1
+  fi
+
+  if [[ -z "$local_projects_directory_root" ]]; then
+    echo " "
+    echo "${COLOR_RED}⚠️  Error: LOCAL_PROJECTS_DIRECTORY_ROOT not set in configuration file${COLOR_RESET}"
+    echo "   Please check: $ENV_FILE"
+    echo " "
+    exit 1
+  fi
+
+  # Validate maxdepth is a positive integer (security check)
+  if ! [[ "$maxdepth" =~ ^[0-9]+$ ]] || [[ "$maxdepth" -eq 0 ]]; then
+    echo " "
+    echo "${COLOR_RED}⚠️  Error: MAXDEPTH must be a positive integer${COLOR_RESET}"
+    echo "   Current value: '$maxdepth'"
+    echo "   Please check: $ENV_FILE"
+    echo " "
+    exit 1
+  fi
+
+  # Warn if projects directory points to sensitive system directories
+  case "$local_projects_directory_root" in
+    /etc*|/sys*|/proc*|/var*|/bin*|/sbin*|/usr/bin*|/usr/sbin*|/boot*)
+      echo " "
+      echo "${COLOR_YELLOW}⚠️  Warning: Your projects directory points to a system directory:${COLOR_RESET}"
+      echo "   $local_projects_directory_root"
+      echo " "
+      echo "   This may be unsafe and slow. Consider using a user directory instead."
+      echo " "
+      read -p "   Continue anyway? (y/N) " -n 1 -r
+      echo " "
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+      fi
+      ;;
+  esac
 else
   echo " "
   echo "⚠️  Configuration file not found at: $ENV_FILE"
@@ -232,7 +304,10 @@ function getDisplayWidth() {
 }
 
 function getCommitsPerDate() {
-  local temp_file=$(mktemp)
+  local temp_file=$(mktemp) || {
+    echo "${COLOR_RED}Error: Failed to create temporary file${COLOR_RESET}" >&2
+    return 1
+  }
   local found_commits=false
   
   find "$local_projects_directory_root" -name .git -type d -prune -maxdepth "$maxdepth" -exec dirname {} \; | while read line; do
