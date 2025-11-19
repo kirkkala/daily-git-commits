@@ -3,6 +3,14 @@
 # daily-commits - A beautiful git commit history viewer
 # https://github.com/kirkkala/daily-git-commits
 
+# Color definitions (needed for help)
+COLOR_RED=$(tput setaf 1)
+COLOR_GREEN=$(tput setaf 2)
+COLOR_YELLOW=$(tput setaf 3)
+COLOR_BLUE=$(tput setaf 4)
+COLOR_MAGENTA=$(tput setaf 5)
+COLOR_RESET=$(tput sgr0)
+
 # Configuration paths
 CONFIG_DIR="${HOME}/.config/daily-git-commits"
 ENV_FILE="${CONFIG_DIR}/.env"
@@ -11,6 +19,72 @@ ENV_FILE="${CONFIG_DIR}/.env"
 if [[ -n "${DAILY_COMMITS_CONFIG_DIR}" ]]; then
   CONFIG_DIR="${DAILY_COMMITS_CONFIG_DIR}"
   ENV_FILE="${CONFIG_DIR}/.env"
+fi
+
+# Help function (defined early so it works without config)
+show_help() {
+  cat << EOF
+
+${COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              📅  daily-commits - Usage Guide  ✨              ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝${COLOR_RESET}
+
+${COLOR_BLUE}DESCRIPTION${COLOR_RESET}
+  A delightfully fancy tool that finds your git commits across all
+  your projects and presents them in a beautiful report.
+
+${COLOR_BLUE}USAGE${COLOR_RESET}
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} [DATE] [END_DATE]
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} [SHORTCUT]
+  ${COLOR_GREEN}daily-commits${COLOR_RESET} --help
+
+${COLOR_BLUE}OPTIONS${COLOR_RESET}
+  ${COLOR_YELLOW}--help, -h, help${COLOR_RESET}     Show this help message
+
+${COLOR_BLUE}SHORTCUTS${COLOR_RESET} (for the lazy typist 😎)
+  ${COLOR_YELLOW}(no args)${COLOR_RESET}            Today's commits
+  ${COLOR_YELLOW}yd, yesterday${COLOR_RESET}        Yesterday's commits
+  ${COLOR_YELLOW}w, week${COLOR_RESET}              Last 7 days
+  ${COLOR_YELLOW}3d, 3day, 3days${COLOR_RESET}      Last 3 days (any number works!)
+  ${COLOR_YELLOW}7d${COLOR_RESET}                   Last 7 days
+  ${COLOR_YELLOW}30d${COLOR_RESET}                  Last 30 days (you overachiever!)
+
+${COLOR_BLUE}DATE FORMATS${COLOR_RESET}
+  ${COLOR_YELLOW}YYYY-MM-DD${COLOR_RESET}           Single date (e.g., 2025-11-19)
+  ${COLOR_YELLOW}YYYY-MM-DD YYYY-MM-DD${COLOR_RESET} Date range
+
+${COLOR_BLUE}EXAMPLES${COLOR_RESET}
+  ${COLOR_GREEN}daily-commits${COLOR_RESET}
+    → Show today's commits
+
+  ${COLOR_GREEN}daily-commits yd${COLOR_RESET}
+    → Show yesterday's commits
+
+  ${COLOR_GREEN}daily-commits 5d${COLOR_RESET}
+    → Show commits from last 5 days
+
+  ${COLOR_GREEN}daily-commits 2025-11-01${COLOR_RESET}
+    → Show commits from November 1st, 2025
+
+  ${COLOR_GREEN}daily-commits 2025-11-01 2025-11-15${COLOR_RESET}
+    → Show commits from November 1-15, 2025
+
+${COLOR_BLUE}CONFIGURATION${COLOR_RESET}
+  Config file: ${COLOR_YELLOW}${CONFIG_DIR}/.env${COLOR_RESET}
+  Edit to change: author name, projects directory, search depth
+
+${COLOR_BLUE}MORE INFO${COLOR_RESET}
+  ${COLOR_MAGENTA}https://github.com/kirkkala/daily-git-commits${COLOR_RESET}
+
+EOF
+  exit 0
+}
+
+# Check for help flag BEFORE loading config
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "help" ]]; then
+  show_help
 fi
 
 # Load configuration
@@ -41,14 +115,6 @@ else
   echo " "
   exit 1
 fi
-
-# Color definitions
-COLOR_RED=$(tput setaf 1)
-COLOR_GREEN=$(tput setaf 2)
-COLOR_YELLOW=$(tput setaf 3)
-COLOR_BLUE=$(tput setaf 4)
-COLOR_MAGENTA=$(tput setaf 5)
-COLOR_RESET=$(tput sgr0)
 
 # Validate projects directory
 if [[ ! -d $local_projects_directory_root ]]; then
